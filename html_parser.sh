@@ -8,19 +8,14 @@ then
 	echo "Ex: $0 www.example.com"
 else
 	echo "[+] SEARCHING SUBDOMAINS ON $1"
-
-	wget -q $1
-
 	echo -e "\n"
 
-	grep href index.html | cut -d "/" -f 3 | grep "\." | cut -d '"' -f 1 | grep -v "<l" > list
-
-	rm -rf index.html
-
 	echo "[+] SUBDOMAINS FOUND:"
-	for url in $(cat list); do
+	
+	# Fetching HTML to stdout and parsing directly into a variable (no local files created)
+	subdomains=$(wget -qO- $1 | grep href | cut -d "/" -f 3 | grep "\." | cut -d '"' -f 1 | grep -v "<l")
+	
+	for url in $subdomains; do
 		host $url | grep "has address";
 	done
-
-	rm -rf list
 fi
